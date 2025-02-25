@@ -1,5 +1,7 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.15...3.31)
 option(DUCKDB_WASM_EXTENSIONS "Whether compiling for Wasm target" OFF)
+
+set(EXTENSION_NAME read_stat)
 
 ###
 # Configuration
@@ -30,8 +32,21 @@ project(${EXTENSION_NAME} LANGUAGES C)
 
 # Create Extension library
 set(EXTENSION_SOURCES
-        src/add_numbers.c
-        src/capi_quack.c
+        src/duckdb_read_stat_sas.c
+        src/duckdb_read_stat.c
+        third_party/readstat/readstat_bits.c
+        third_party/readstat/readstat_convert.c
+        third_party/readstat/readstat_error.c
+        third_party/readstat/readstat_io_unistd.c
+        third_party/readstat/readstat_malloc.c
+        third_party/readstat/readstat_metadata.c
+        third_party/readstat/readstat_parser.c
+        third_party/readstat/readstat_value.c
+        third_party/readstat/readstat_variable.c
+        third_party/readstat/readstat_writer.c
+        third_party/readstat/sas/readstat_sas.c
+        third_party/readstat/sas/readstat_sas_rle.c
+        third_party/readstat/sas/readstat_sas7bdat_read.c
 )
 
 if (DUCKDB_WASM_EXTENSION)
@@ -52,3 +67,5 @@ target_include_directories(${EXTENSION_NAME} PRIVATE src/include)
 
 # Include DuckDB C API headers
 target_include_directories(${EXTENSION_NAME} PRIVATE duckdb_capi)
+
+target_include_directories(${EXTENSION_NAME} PRIVATE third_party/readstat)
