@@ -49,7 +49,7 @@ void read_sas(duckdb_function_info info, duckdb_data_chunk output)
 	readstat_parser_t *parser = readstat_parser_init();
 
 	readstat_set_row_offset(parser, (long)init_data->offset);
-	readstat_set_row_limit(parser, (long)2);
+	readstat_set_row_limit(parser, (long)2048);
 	readstat_set_value_handler(parser, &read_stat_handle_value);
 	readstat_set_error_handler(parser, &read_stat_handle_error);
 
