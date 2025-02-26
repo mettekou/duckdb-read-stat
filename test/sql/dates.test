@@ -6,7 +6,7 @@ require read_stat
 
 query III
 SELECT date, dtime, time
-FROM read_sas("/home/mettekou/src/public/mettekou/duckdb-read-stat/test/sql/dates.sas7bdat")
+FROM './test/sql/dates.sas7bdat';
 ----
 2061-04-15	2061-04-15 07:38:33	07:38:33
 1723-04-21	1723-04-21 06:56:41	06:56:41
