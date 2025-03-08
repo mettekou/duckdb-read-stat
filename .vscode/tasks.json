@@ -1,0 +1,14 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "make debug",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "debug"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}
