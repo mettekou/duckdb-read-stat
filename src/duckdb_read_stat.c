@@ -349,6 +349,7 @@ int duckdb_read_stat_handle_value(int obs_index, readstat_variable_t *variable, 
         switch (type)
         {
         case READSTAT_TYPE_STRING:
+        case READSTAT_TYPE_STRING_REF:
             duckdb_vector_assign_string_element(vector, obs_index, readstat_string_value(value));
             break;
 
