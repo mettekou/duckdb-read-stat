@@ -419,7 +419,7 @@ int duckdb_read_stat_handle_value(int obs_index, readstat_variable_t *variable, 
     else
     {
         duckdb_vector_ensure_validity_writable(vector);
-        int64_t *validity = duckdb_vector_get_validity(vector);
+        uint64_t *validity = duckdb_vector_get_validity(vector);
         duckdb_validity_set_row_invalid(validity, obs_index);
     }
 
