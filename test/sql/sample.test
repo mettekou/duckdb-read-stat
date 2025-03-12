@@ -12,10 +12,39 @@ Binder Error: No extension found that is capable of reading the file "./test/sql
 # Require statement will ensure the extension is loaded from now on
 require read_stat
 
-# Confirm the extension works
 query IIIIIII
 SELECT mychar, mynum, mydate, dtime, mylabl, myord, mytime
 FROM './test/sql/sample.sas7bdat';
+----
+a	1.1	2018-05-06	2018-05-06 10:10:10	1.0	1.0	10:10:10
+b	1.2	1880-05-06	1880-05-06 10:10:10	2.0	2.0	23:10:10
+c	-1000.3	1960-01-01	1960-01-01 00:00:00	1.0	3.0	00:00:00
+d	-1.4	1583-01-01	1583-01-01 00:00:00	2.0	1.0	16:10:10
+e	1000.3	NULL	NULL	1.0	1.0	NULL
+
+query IIIIIII
+SELECT mychar, mynum, mydate, dtime, mylabl, myord, mytime
+FROM './test/sql/sample.sav';
+----
+a	1.1	2018-05-06	2018-05-06 10:10:10	1.0	1.0	10:10:10
+b	1.2	1880-05-06	1880-05-06 10:10:10	2.0	2.0	23:10:10
+c	-1000.3	1960-01-01	1960-01-01 00:00:00	1.0	3.0	00:00:00
+d	-1.4	1583-01-01	1583-01-01 00:00:00	2.0	1.0	16:10:10
+e	1000.3	NULL	NULL	1.0	1.0	NULL
+
+query IIIIIII
+SELECT mychar, mynum, mydate, dtime, mylabl, myord, mytime
+FROM './test/sql/sample.zsav';
+----
+a	1.1	2018-05-06	2018-05-06 10:10:10	1.0	1.0	10:10:10
+b	1.2	1880-05-06	1880-05-06 10:10:10	2.0	2.0	23:10:10
+c	-1000.3	1960-01-01	1960-01-01 00:00:00	1.0	3.0	00:00:00
+d	-1.4	1583-01-01	1583-01-01 00:00:00	2.0	1.0	16:10:10
+e	1000.3	NULL	NULL	1.0	1.0	NULL
+
+query IIIIIII
+SELECT mychar, mynum, mydate, dtime, mylabl, myord, mytime
+FROM './test/sql/sample.dta';
 ----
 a	1.1	2018-05-06	2018-05-06 10:10:10	1.0	1.0	10:10:10
 b	1.2	1880-05-06	1880-05-06 10:10:10	2.0	2.0	23:10:10

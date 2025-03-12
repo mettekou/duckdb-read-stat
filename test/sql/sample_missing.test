@@ -1,0 +1,13 @@
+require read_stat
+
+query IIIIIII
+SELECT mychar, mynum, mydate, dtime, mylabl, myord, mytime
+FROM read_stat('./test/sql/sample_missing.sav', format = 'sav');
+----
+a	1.10	2018-05-06	2018-05-06 10:10:10	1.00	1.00	10:10:10
+b	1.20	1880-05-06	1880-05-06 10:10:10	2.00	2.00	23:10:10
+c	-1000.30	1960-01-01	1960-01-01 00:00:00	1.00	3.00	00:00:00
+d	-1.40	1583-01-01	1583-01-01 00:00:00	2.00	1.00	16:10:10
+e	1000.30	NULL	NULL	1.00	1.00	NULL
+Z	NULL	NULL	NULL	NULL	NULL	NULL
+(empty)	NULL	NULL	NULL	NULL	NULL	NULL
