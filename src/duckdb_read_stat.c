@@ -349,31 +349,27 @@ int duckdb_read_stat_handle_value(int obs_index, readstat_variable_t *variable, 
         switch (type)
         {
         case READSTAT_TYPE_STRING:
-            const char *string_value = readstat_string_value(value);
-            duckdb_vector_assign_string_element(vector, obs_index, string_value);
+            duckdb_vector_assign_string_element(vector, obs_index, readstat_string_value(value));
             break;
 
         case READSTAT_TYPE_INT8:
-            int8_t *output_value_int8 = (int8_t *)duckdb_vector_get_data(vector);
-            output_value_int8[obs_index] = readstat_int8_value(value);
+            ((int8_t *)duckdb_vector_get_data(vector))[obs_index] = readstat_int8_value(value);
             break;
 
         case READSTAT_TYPE_INT16:
-            int16_t *output_value_int16 = (int16_t *)duckdb_vector_get_data(vector);
-            output_value_int16[obs_index] = readstat_int16_value(value);
+            ((int16_t *)duckdb_vector_get_data(vector))[obs_index] = readstat_int16_value(value);
             break;
 
         case READSTAT_TYPE_INT32:
-            int32_t *output_value_int32 = (int32_t *)duckdb_vector_get_data(vector);
-            output_value_int32[obs_index] = readstat_int32_value(value);
+            ((int32_t *)duckdb_vector_get_data(vector))[obs_index] = readstat_int32_value(value);
             break;
 
         case READSTAT_TYPE_FLOAT:
-            float *output_value_float = (float *)duckdb_vector_get_data(vector);
-            output_value_float[obs_index] = readstat_float_value(value);
+            ((float *)duckdb_vector_get_data(vector))[obs_index] = readstat_float_value(value);
             break;
 
         case READSTAT_TYPE_DOUBLE:
+        {
             double double_value = readstat_double_value(value);
             if (
                 // SAS
@@ -417,6 +413,7 @@ int duckdb_read_stat_handle_value(int obs_index, readstat_variable_t *variable, 
                 output_value[obs_index] = double_value;
             }
             break;
+        }
         }
     }
     else
