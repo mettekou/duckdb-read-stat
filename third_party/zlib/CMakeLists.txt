@@ -5,7 +5,7 @@ project(zlib C)
 
 set(VERSION "1.3.1")
 
-option(ZLIB_BUILD_EXAMPLES "Enable Zlib Examples" OFF)
+option(ZLIB_BUILD_EXAMPLES "Enable Zlib Examples" ON)
 
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")
 set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Installation directory for libraries")
@@ -150,8 +150,8 @@ if(MINGW)
 endif(MINGW)
 
 if(BUILD_SHARED_LIBS)
-add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
-target_include_directories(zlib PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+    add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
+    target_include_directories(zlib PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
     set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
     set_target_properties(zlib PROPERTIES SOVERSION 1)
 endif()
