@@ -5,3 +5,4 @@ configure
 duckdb_unittest_tempdir
 /test/bin
 venv
+vcpkg_installed

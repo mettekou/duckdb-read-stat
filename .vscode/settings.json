@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        ".env*": "dotenv",
+        "compare": "c",
+        "type_traits": "c",
+        "read_sas.h": "c",
+        "time.h": "c",
+        "duckdb_extension.h": "c",
+        "duckdb_read_stat_sas.h": "c",
+        "duckdb_read_stat.h": "c",
+        "readstat_zsav_write.h": "c"
+    }
+}

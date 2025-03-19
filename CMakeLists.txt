@@ -65,7 +65,6 @@ set(EXTENSION_SOURCES
 
 if (DUCKDB_WASM_EXTENSION)
 	add_library(${EXTENSION_NAME} STATIC ${EXTENSION_SOURCES})
-    set(BUILD_SHARED_LIBS OFF)
 else()
 	add_library(${EXTENSION_NAME} SHARED ${EXTENSION_SOURCES})
 endif()
@@ -77,14 +76,12 @@ set(VISIBILITY_INLINES_HIDDEN ON)
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
 
-set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -fPIC -D HAVE_ZLIB=1")
-
-add_subdirectory(third_party/zlib)
-target_link_libraries(${EXTENSION_NAME} PRIVATE zlibstatic)
-target_include_directories(${EXTENSION_NAME} PRIVATE
-    "${PROJECT_BINARY_DIR}"
-    "${PROJECT_SOURCE_DIR}/third_party/zlib"
-)
+find_package(Iconv)
+target_link_libraries(${EXTENSION_NAME} PRIVATE Iconv::Iconv)
+target_link_libraries(${LOADABLE_EXTENSION_NAME} Iconv::Iconv)
+find_package(ZLIB REQUIRED)
+target_link_libraries(${EXTENSION_NAME} PRIVATE ZLIB::ZLIB)
+target_link_libraries(${LOADABLE_EXTENSION_NAME} ZLIB::ZLIB)
 
 # Include own headers
 target_include_directories(${EXTENSION_NAME} PRIVATE src/include)
