@@ -4,6 +4,7 @@
 
 #define timegm _mkgmtime
 #define strncasecmp _strnicmp
+#define strcasecmp _stricmp
 
 #else
 #include <strings.h>
