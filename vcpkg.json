@@ -1,6 +1,9 @@
 {
-    "dependencies": [
-        "libiconv",
-        "zlib"
-    ]
+  "dependencies": [
+    "libiconv",
+    {
+      "name": "zlib",
+      "platform": "windows | linux | wasm32"
+    }
+  ]
 }
