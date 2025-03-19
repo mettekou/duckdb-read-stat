@@ -1,20 +1,73 @@
-# DuckDB C/C++ extension template
-This is an **experimental** template for C/C++ based extensions that link with the **C Extension API** of DuckDB. Note that this
-is different from https://github.com/duckdb/extension-template, which links against the C++ API of DuckDB.
+# The DuckDB ReadStat Extension
 
-Features:
-- No DuckDB build required
-- CI/CD chain preconfigured
-- (Coming soon) Works with community extensions
+Use this extension to read data sets from SAS, Stata, and SPSS from [DuckDB](<https://duckdb.org/>) with [ReadStat](<https://github.com/WizardMac/ReadStat?tab=readme-ov-file#readstat-read-and-write-data-sets-from-sas-stata-and-spss>).
 
-## Cloning
+## Installation & Loading
+
+Installation is simple through the DuckDB Community Extension repository, just type
+
+```
+INSTALL read_stat FROM community;
+LOAD read_stat;
+```
+
+in a DuckDB instance near you.
+
+### The `read_stat` Function
+The extension adds a single DuckDB table function, `read_stat`, which you use as follows:
+
+```SQL
+-- Read a SAS `.sas7bdat` file
+FROM read_stat('sas_data.sas7bdat');
+-- Read an SPSS `.sav` or `.zsav` file
+FROM read_stat('spss_data.sav');
+FROM read_stat('compressed_spss_data.zsav');
+-- Read a Stata .dta file
+FROM read_stat('stata_data.dta');
+```
+
+If the file extension is not `.sas7bdat`, `.sav`, `.zsav`, or `.dta`,
+use the `read_stat` function for the right file type with the `format` parameter:
+
+```SQL
+FROM read_stat('sas_data.other_extension', format = 'sas7bdat');
+-- SPSS `.sav` and `.zsav` can both be read through the format `'sav'`
+FROM read_stat(
+    'spss_data_possibly_compressed.other_extension',
+    format = 'sav'
+);
+FROM read_stat('stata_data.other_extension', format = 'dta');
+```
+
+Override the file character `encoding` inferred from the file with an `iconv` encoding name, see <https://www.gnu.org/software/libiconv/>:
+
+```SQL
+FROM read_stat('latin1_encoded.sas7bdat', encoding = 'iso-8859-1');
+```
+
+If your files have the proper file extensions and you do not need to override their character encodings, a [replacement scan](<https://duckdb.org/docs/stable/guides/glossary.html#replacement-scan>) is also available:
+
+```SQL
+-- Read a SAS `.sas7bdat` file
+FROM 'sas_data.sas7bdat';
+-- Read an SPSS `.sav` or `.zsav` file
+FROM 'spss_data.sav';
+FROM 'compressed_spss_data.zsav';
+-- Read a Stata .dta file
+FROM 'stata_data.dta';
+```
+
+## Contributing
+
+### Cloning
 Clone the repo with submodules
 
 ```shell
 git clone --recurse-submodules <repo>
 ```
 
-## Dependencies
+### Dependencies
+
 In principle, compiling this template only requires a C/C++ toolchain. However, this template relies on some additional
 tooling to make life a little easier and to be able to share CI/CD infrastructure with extension templates for other languages:
 
@@ -24,13 +77,14 @@ tooling to make life a little easier and to be able to share CI/CD infrastructur
 - CMake
 - Git
 - (Optional) Ninja + ccache
+- vcpkg
 
 Installing these dependencies will vary per platform:
 - For Linux, these come generally pre-installed or are available through the distro-specific package manager.
 - For MacOS, [homebrew](https://formulae.brew.sh/).
 - For Windows, [chocolatey](https://community.chocolatey.org/).
 
-## Building
+### Building
 After installing the dependencies, building is a two-step process. Firstly run:
 ```shell
 make configure
@@ -48,7 +102,7 @@ to the `build/debug` directory.
 
 To create optimized release binaries, simply run `make release` instead.
 
-### Faster builds
+#### Faster builds
 We recommend to install Ninja and Ccache for building as this can have a significant speed boost during development. After installing, ninja can be used 
 by running:
 ```shell
@@ -56,7 +110,7 @@ make clean
 GEN=ninja make debug
 ```
 
-## Testing
+### Testing
 This extension uses the DuckDB Python client for testing. This should be automatically installed in the `make configure` step.
 The tests themselves are written in the SQLLogicTest format, just like most of DuckDB's tests. A sample test can be found in
 `test/sql/<extension_name>.test`. To run the tests using the *debug* build:
@@ -70,28 +124,31 @@ or for the *release* build:
 make test_release
 ```
 
-### Version switching
+#### Version switching
 Testing with different DuckDB versions is really simple:
 
 First, run 
-```
+```shell
 make clean_all
 ```
 to ensure the previous `make configure` step is deleted.
 
-Then, run 
-```
+Then, run
+
+```shell
 DUCKDB_TEST_VERSION=v1.1.2 make configure
 ```
 to select a different duckdb version to test with
 
-Finally, build and test with 
-```
+Finally, build and test with
+
+```shell
 make debug
 make test_debug
 ```
 
-### Using unstable Extension C API functionality
+#### Using unstable Extension C API functionality
+
 The DuckDB Extension C API has a stable part and an unstable part. By default, this template only allows usage of the stable
 part of the API. To switch it to allow using the unstable part, take the following steps:
 
