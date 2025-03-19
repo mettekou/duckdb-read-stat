@@ -4,17 +4,17 @@
 #include <errno.h>
 #include <time.h>
 #if !defined _MSC_VER
-#   include <unistd.h>
-#   include <sys/time.h>
+#include <unistd.h>
+#include <sys/time.h>
 #else
-#   include <sys/timeb.h>
-#   include <sys/types.h>
-#   include <winsock2.h>
+#include <sys/timeb.h>
+#include <sys/types.h>
+#include <winsock2.h>
 
-#   define __need_clock_t
-#   include <time.h>
+#define __need_clock_t
+#include <time.h>
 
-int gettimeofday(struct timeval* t, void* timezone)
+int gettimeofday(struct timeval *t, void *timezone)
 {
     struct _timeb timebuffer;
     _ftime_s(&timebuffer);
@@ -50,17 +50,20 @@ int gettimeofday(struct timeval* t, void* timezone)
 #define unlink _unlink
 #endif
 
-typedef struct rs_ctx_s {
+typedef struct rs_ctx_s
+{
     rs_module_t *module;
-    void        *module_ctx;
-    const char  *error_filename;
-    long         row_count;
-    long         var_count;
+    void *module_ctx;
+    const char *error_filename;
+    long row_count;
+    long var_count;
 } rs_ctx_t;
 
-rs_module_t *rs_module_for_filename(rs_module_t *modules, long module_count, const char *filename) {
+rs_module_t *rs_module_for_filename(rs_module_t *modules, long module_count, const char *filename)
+{
     int i;
-    for (i=0; i<module_count; i++) {
+    for (i = 0; i < module_count; i++)
+    {
         rs_module_t mod = modules[i];
         if (mod.accept(filename))
             return &modules[i];
@@ -68,101 +71,126 @@ rs_module_t *rs_module_for_filename(rs_module_t *modules, long module_count, con
     return NULL;
 }
 
-int can_write(rs_module_t *modules, long modules_count, char *filename) {
+int can_write(rs_module_t *modules, long modules_count, char *filename)
+{
     return (rs_module_for_filename(modules, modules_count, filename) != NULL);
 }
 
-static void handle_error(const char *msg, void *ctx) {
+static void handle_error(const char *msg, void *ctx)
+{
     fprintf(stderr, "%s\n", msg);
 }
 
-static int handle_fweight(readstat_variable_t *variable, void *ctx) {
+static int handle_fweight(readstat_variable_t *variable, void *ctx)
+{
     rs_ctx_t *rs_ctx = (rs_ctx_t *)ctx;
-    if (rs_ctx->module->handle.fweight) {
+    if (rs_ctx->module->handle.fweight)
+    {
         return rs_ctx->module->handle.fweight(variable, rs_ctx->module_ctx);
     }
     return READSTAT_HANDLER_OK;
 }
 
-static int handle_metadata(readstat_metadata_t *metadata, void *ctx) {
+static int handle_metadata(readstat_metadata_t *metadata, void *ctx)
+{
     rs_ctx_t *rs_ctx = (rs_ctx_t *)ctx;
-    if (rs_ctx->module->handle.metadata) {
+    if (rs_ctx->module->handle.metadata)
+    {
         return rs_ctx->module->handle.metadata(metadata, rs_ctx->module_ctx);
     }
     return READSTAT_HANDLER_OK;
 }
 
-static int handle_note(int note_index, const char *note, void *ctx) {
+static int handle_note(int note_index, const char *note, void *ctx)
+{
     rs_ctx_t *rs_ctx = (rs_ctx_t *)ctx;
-    if (rs_ctx->module->handle.note) {
+    if (rs_ctx->module->handle.note)
+    {
         return rs_ctx->module->handle.note(note_index, note, rs_ctx->module_ctx);
     }
     return READSTAT_HANDLER_OK;
 }
 
 static int handle_value_label(const char *val_labels, readstat_value_t value,
-                              const char *label, void *ctx) {
+                              const char *label, void *ctx)
+{
     rs_ctx_t *rs_ctx = (rs_ctx_t *)ctx;
-    if (rs_ctx->module->handle.value_label) {
+    if (rs_ctx->module->handle.value_label)
+    {
         return rs_ctx->module->handle.value_label(val_labels, value, label, rs_ctx->module_ctx);
     }
     return READSTAT_HANDLER_OK;
 }
 
 static int handle_variable(int index, readstat_variable_t *variable,
-                           const char *val_labels, void *ctx) {
+                           const char *val_labels, void *ctx)
+{
     rs_ctx_t *rs_ctx = (rs_ctx_t *)ctx;
-    if (rs_ctx->module->handle.variable) {
+    if (rs_ctx->module->handle.variable)
+    {
         return rs_ctx->module->handle.variable(index, variable, val_labels, rs_ctx->module_ctx);
     }
     return READSTAT_HANDLER_OK;
 }
 
-static int handle_value(int obs_index, readstat_variable_t *variable, readstat_value_t value, void *ctx) {
+static int handle_value(int obs_index, readstat_variable_t *variable, readstat_value_t value, void *ctx)
+{
     rs_ctx_t *rs_ctx = (rs_ctx_t *)ctx;
     int var_index = readstat_variable_get_index(variable);
-    if (var_index == 0) {
+    if (var_index == 0)
+    {
         rs_ctx->row_count++;
     }
-    if (obs_index == 0) {
+    if (obs_index == 0)
+    {
         rs_ctx->var_count++;
     }
-    if (rs_ctx->module->handle.value) {
+    if (rs_ctx->module->handle.value)
+    {
         return rs_ctx->module->handle.value(obs_index, variable, value, rs_ctx->module_ctx);
     }
     return READSTAT_HANDLER_OK;
 }
 
-readstat_error_t parse_file(readstat_parser_t *parser, const char *input_filename, int input_format, void *ctx) {
+readstat_error_t parse_file(readstat_parser_t *parser, const char *input_filename, int input_format, void *ctx)
+{
     readstat_error_t error = READSTAT_OK;
 
-    if (input_format == RS_FORMAT_DTA) {
+    if (input_format == RS_FORMAT_DTA)
+    {
         error = readstat_parse_dta(parser, input_filename, ctx);
-    } else if (input_format == RS_FORMAT_SAV ||
-            input_format == RS_FORMAT_ZSAV) {
+    }
+    else if (input_format == RS_FORMAT_SAV ||
+             input_format == RS_FORMAT_ZSAV)
+    {
         error = readstat_parse_sav(parser, input_filename, ctx);
-    } else if (input_format == RS_FORMAT_POR) {
+    }
+    else if (input_format == RS_FORMAT_POR)
+    {
         error = readstat_parse_por(parser, input_filename, ctx);
-    } else if (input_format == RS_FORMAT_SAS_DATA) {
+    }
+    else if (input_format == RS_FORMAT_SAS_DATA)
+    {
         error = readstat_parse_sas7bdat(parser, input_filename, ctx);
-    } else if (input_format == RS_FORMAT_SAS_CATALOG) {
+    }
+    else if (input_format == RS_FORMAT_SAS_CATALOG)
+    {
         error = readstat_parse_sas7bcat(parser, input_filename, ctx);
-    } else if (input_format == RS_FORMAT_XPORT) {
+    }
+    else if (input_format == RS_FORMAT_XPORT)
+    {
         error = readstat_parse_xport(parser, input_filename, ctx);
     }
 
     return error;
 }
 
-static void print_version() {
+static void print_version()
+{
     fprintf(stdout, "ReadStat version " READSTAT_VERSION "\n");
 }
 
-#if HAVE_ZLIB
 #define INPUT_FORMATS "dta|por|sav|sas7bdat|xpt|zsav"
-#else
-#define INPUT_FORMATS "dta|por|sav|sas7bdat|xpt"
-#endif
 
 #if HAVE_XLSXWRITER
 #define OUTPUT_FORMATS INPUT_FORMATS "|csv|xlsx"
@@ -170,7 +198,8 @@ static void print_version() {
 #define OUTPUT_FORMATS INPUT_FORMATS "|csv"
 #endif
 
-static void print_usage(const char *cmd) {
+static void print_usage(const char *cmd)
+{
     print_version();
 
     fprintf(stdout, "\n  View a file's metadata:\n");
@@ -192,27 +221,28 @@ static void print_usage(const char *cmd) {
 
     fprintf(stdout, "\n  Convert a SAS7BDAT file with value labels stored in a separate SAS catalog file:\n");
     fprintf(stdout, "\n     %s input.sas7bdat catalog.sas7bcat output.(dta|por|sav|xpt"
-#if HAVE_ZLIB
-            "|zsav"
-#endif
-            "|csv"
+                    "|zsav"
+                    "|csv"
 #if HAVE_XLSXWRITER
-            "|xlsx"
+                    "|xlsx"
 #endif
-            ")\n\n", cmd);
+                    ")\n\n",
+            cmd);
 }
 
 #if HAVE_CSVREADER
 static readstat_error_t parse_csv_plus_json(const char *input_filename,
-        const char *json_filename, int output_format, rs_ctx_t *rs_ctx) {
+                                            const char *json_filename, int output_format, rs_ctx_t *rs_ctx)
+{
     readstat_error_t error = READSTAT_OK;
-    struct csv_metadata csv_meta = { .output_format = output_format };
+    struct csv_metadata csv_meta = {.output_format = output_format};
     struct json_metadata *json_md = NULL;
     readstat_parser_t *pass1_parser = NULL;
     readstat_parser_t *pass2_parser = NULL;
 
     json_md = get_json_metadata(json_filename);
-    if (json_md == NULL) {
+    if (json_md == NULL)
+    {
         rs_ctx->error_filename = json_filename;
         error = READSTAT_ERROR_PARSE;
         goto cleanup;
@@ -255,7 +285,8 @@ cleanup:
 #endif
 
 static readstat_error_t parse_text_plus_dct(const char *input_filename,
-        const char *dct_filename, rs_ctx_t *rs_ctx) {
+                                            const char *dct_filename, rs_ctx_t *rs_ctx)
+{
     rs_format_e dct_format = readstat_format(dct_filename);
     readstat_error_t error = READSTAT_OK;
     readstat_schema_t *schema = NULL;
@@ -265,11 +296,16 @@ static readstat_error_t parse_text_plus_dct(const char *input_filename,
     readstat_set_error_handler(parser, &handle_error);
     readstat_set_value_label_handler(parser, &handle_value_label);
     readstat_set_variable_handler(parser, &handle_variable);
-    if (dct_format == RS_FORMAT_STATA_DICTIONARY) {
+    if (dct_format == RS_FORMAT_STATA_DICTIONARY)
+    {
         schema = readstat_parse_stata_dictionary(parser, dct_filename, rs_ctx, &error);
-    } else if (dct_format == RS_FORMAT_SAS_COMMANDS) {
+    }
+    else if (dct_format == RS_FORMAT_SAS_COMMANDS)
+    {
         schema = readstat_parse_sas_commands(parser, dct_filename, rs_ctx, &error);
-    } else if (dct_format == RS_FORMAT_SPSS_COMMANDS) {
+    }
+    else if (dct_format == RS_FORMAT_SPSS_COMMANDS)
+    {
         schema = readstat_parse_spss_commands(parser, dct_filename, rs_ctx, &error);
     }
     rs_ctx->error_filename = dct_filename;
@@ -304,7 +340,8 @@ cleanup:
 }
 
 static readstat_error_t parse_binary_file(const char *input_filename,
-        const char *catalog_filename, rs_ctx_t *rs_ctx) {
+                                          const char *catalog_filename, rs_ctx_t *rs_ctx)
+{
     readstat_error_t error = READSTAT_OK;
     rs_format_e input_format = readstat_format(input_filename);
     readstat_parser_t *pass1_parser = readstat_parser_init();
@@ -315,10 +352,13 @@ static readstat_error_t parse_binary_file(const char *input_filename,
     readstat_set_value_label_handler(pass1_parser, &handle_value_label);
     readstat_set_fweight_handler(pass1_parser, &handle_fweight);
 
-    if (catalog_filename) {
+    if (catalog_filename)
+    {
         error = parse_file(pass1_parser, catalog_filename, RS_FORMAT_SAS_CATALOG, rs_ctx);
         rs_ctx->error_filename = catalog_filename;
-    } else {
+    }
+    else
+    {
         error = parse_file(pass1_parser, input_filename, input_format, rs_ctx);
         rs_ctx->error_filename = input_filename;
     }
@@ -347,7 +387,8 @@ cleanup:
 }
 
 static int convert_file(const char *input_filename, const char *catalog_filename, const char *output_filename,
-        rs_module_t *modules, int modules_count, int force) {
+                        rs_module_t *modules, int modules_count, int force)
+{
     readstat_error_t error = READSTAT_OK;
     struct timeval start_time, end_time;
     rs_module_t *module = rs_module_for_filename(modules, modules_count, output_filename);
@@ -358,15 +399,17 @@ static int convert_file(const char *input_filename, const char *catalog_filename
 
     gettimeofday(&start_time, NULL);
 
-    if (!force && stat(output_filename, &filestat) == 0) {
+    if (!force && stat(output_filename, &filestat) == 0)
+    {
         error = READSTAT_ERROR_OPEN;
         file_exists = 1;
         goto cleanup;
     }
-    
+
     module_ctx = module->init(output_filename);
 
-    if (module_ctx == NULL) {
+    if (module_ctx == NULL)
+    {
         error = READSTAT_ERROR_OPEN;
         rs_ctx->error_filename = output_filename;
         goto cleanup;
@@ -375,34 +418,44 @@ static int convert_file(const char *input_filename, const char *catalog_filename
     rs_ctx->module = module;
     rs_ctx->module_ctx = module_ctx;
 
-    if (is_json(catalog_filename)) {
+    if (is_json(catalog_filename))
+    {
 #if HAVE_CSVREADER
         error = parse_csv_plus_json(input_filename, catalog_filename, readstat_format(output_filename), rs_ctx);
 #endif
-    } else if (is_dictionary(catalog_filename)) {
+    }
+    else if (is_dictionary(catalog_filename))
+    {
         error = parse_text_plus_dct(input_filename, catalog_filename, rs_ctx);
-    } else {
+    }
+    else
+    {
         error = parse_binary_file(input_filename, catalog_filename, rs_ctx);
     }
 
     gettimeofday(&end_time, NULL);
 
     fprintf(stderr, "Converted %ld variables and %ld rows in %.2lf seconds\n",
-            rs_ctx->var_count, rs_ctx->row_count, 
+            rs_ctx->var_count, rs_ctx->row_count,
             (end_time.tv_sec + 1e-6 * end_time.tv_usec) -
-            (start_time.tv_sec + 1e-6 * start_time.tv_usec));
+                (start_time.tv_sec + 1e-6 * start_time.tv_usec));
 
 cleanup:
-    if (module->finish) {
+    if (module->finish)
+    {
         module->finish(rs_ctx->module_ctx);
     }
 
     free(rs_ctx);
 
-    if (error != READSTAT_OK) {
-        if (file_exists) {
+    if (error != READSTAT_OK)
+    {
+        if (file_exists)
+        {
             fprintf(stderr, "Error opening %s: File exists (Use -f to overwrite)\n", output_filename);
-        } else {
+        }
+        else
+        {
             fprintf(stderr, "Error processing %s: %s\n", rs_ctx->error_filename, readstat_error_message(error));
             unlink(output_filename);
         }
@@ -412,7 +465,8 @@ cleanup:
     return 0;
 }
 
-size_t readstat_strftime(char *s, size_t maxsize, const char *format, time_t timestamp) {
+size_t readstat_strftime(char *s, size_t maxsize, const char *format, time_t timestamp)
+{
 #if !defined _MSC_VER
     return strftime(s, maxsize, format, localtime(&timestamp));
 #else
@@ -422,7 +476,8 @@ size_t readstat_strftime(char *s, size_t maxsize, const char *format, time_t tim
 #endif
 }
 
-static int dump_metadata(readstat_metadata_t *metadata, void *ctx) {
+static int dump_metadata(readstat_metadata_t *metadata, void *ctx)
+{
     printf("Columns: %d\n", readstat_get_var_count(metadata));
     printf("Rows: %d\n", readstat_get_row_count(metadata));
     const char *table_name = readstat_get_table_name(metadata);
@@ -433,33 +488,47 @@ static int dump_metadata(readstat_metadata_t *metadata, void *ctx) {
     readstat_compress_t compression = readstat_get_compression(metadata);
     readstat_endian_t endianness = readstat_get_endianness(metadata);
 
-    if (table_name && table_name[0]) {
-        if (*(rs_format_e *)ctx == RS_FORMAT_SAS_CATALOG) {
+    if (table_name && table_name[0])
+    {
+        if (*(rs_format_e *)ctx == RS_FORMAT_SAS_CATALOG)
+        {
             printf("Catalog name: %s\n", table_name);
-        } else {
+        }
+        else
+        {
             printf("Table name: %s\n", table_name);
         }
     }
-    if (file_label && file_label[0]) {
+    if (file_label && file_label[0])
+    {
         printf("Table label: %s\n", file_label);
     }
-    if (version) {
+    if (version)
+    {
         printf("Format version: %ld\n", version);
     }
-    if (orig_encoding) {
+    if (orig_encoding)
+    {
         printf("Text encoding: %s\n", orig_encoding);
     }
-    if (compression == READSTAT_COMPRESS_ROWS) {
+    if (compression == READSTAT_COMPRESS_ROWS)
+    {
         printf("Compression: rows\n");
-    } else if (compression == READSTAT_COMPRESS_BINARY) {
+    }
+    else if (compression == READSTAT_COMPRESS_BINARY)
+    {
         printf("Compression: binary\n");
     }
-    if (endianness == READSTAT_ENDIAN_LITTLE) {
+    if (endianness == READSTAT_ENDIAN_LITTLE)
+    {
         printf("Byte order: little-endian\n");
-    } else if (endianness == READSTAT_ENDIAN_BIG) {
+    }
+    else if (endianness == READSTAT_ENDIAN_BIG)
+    {
         printf("Byte order: big-endian\n");
     }
-    if (timestamp) {
+    if (timestamp)
+    {
         char buffer[128];
         readstat_strftime(buffer, sizeof(buffer), "%d %b %Y %H:%M", timestamp);
         printf("Timestamp: %s\n", buffer);
@@ -467,7 +536,8 @@ static int dump_metadata(readstat_metadata_t *metadata, void *ctx) {
     return 0;
 }
 
-static int dump_file(const char *input_filename) {
+static int dump_file(const char *input_filename)
+{
     rs_format_e input_format = readstat_format(input_filename);
     readstat_parser_t *parser = readstat_parser_init();
     readstat_error_t error = READSTAT_OK;
@@ -481,7 +551,8 @@ static int dump_file(const char *input_filename) {
 
     readstat_parser_free(parser);
 
-    if (error != READSTAT_OK) {
+    if (error != READSTAT_OK)
+    {
         fprintf(stderr, "Error processing %s: %s\n", input_filename, readstat_error_message(error));
         return 1;
     }
@@ -489,7 +560,8 @@ static int dump_file(const char *input_filename) {
     return 0;
 }
 
-int portable_main(int argc, char** argv) {
+int portable_main(int argc, char **argv)
+{
     char *input_filename = NULL;
     char *catalog_filename = NULL;
     char *output_filename = NULL;
@@ -512,52 +584,68 @@ int portable_main(int argc, char** argv) {
     modules[module_index++] = rs_mod_xlsx;
 #endif
 
-    if (argc == 2 && (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0)) {
+    if (argc == 2 && (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0))
+    {
         print_version();
         return 0;
     }
-    if (argc == 2 && (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0)) {
+    if (argc == 2 && (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0))
+    {
         print_usage(argv[0]);
         return 0;
     }
-    if (argc > 1) {
+    if (argc > 1)
+    {
         int argpos = 1;
-        if (strcmp(argv[argpos], "-f") == 0) {
+        if (strcmp(argv[argpos], "-f") == 0)
+        {
             force = 1;
             argpos++;
         }
-        if (argpos + 1 == argc) {
-            if (can_read(argv[argpos])) {
+        if (argpos + 1 == argc)
+        {
+            if (can_read(argv[argpos]))
+            {
                 input_filename = argv[argpos];
             }
-        } else if (argpos + 2 == argc) {
-            if (can_read(argv[argpos]) && can_write(modules, modules_count, argv[argpos+1])) {
+        }
+        else if (argpos + 2 == argc)
+        {
+            if (can_read(argv[argpos]) && can_write(modules, modules_count, argv[argpos + 1]))
+            {
                 input_filename = argv[argpos];
-                output_filename = argv[argpos+1];
+                output_filename = argv[argpos + 1];
             }
-        } else if (argpos + 3 == argc) {
-            if (can_write(modules, modules_count, argv[argpos+2]) &&
-                    (is_dictionary(argv[argpos+1]) ||
-                     (can_read(argv[argpos]) && 
-                      (is_json(argv[argpos+1]) || is_catalog(argv[argpos+1]))))) {
+        }
+        else if (argpos + 3 == argc)
+        {
+            if (can_write(modules, modules_count, argv[argpos + 2]) &&
+                (is_dictionary(argv[argpos + 1]) ||
+                 (can_read(argv[argpos]) &&
+                  (is_json(argv[argpos + 1]) || is_catalog(argv[argpos + 1])))))
+            {
                 input_filename = argv[argpos];
-                catalog_filename = argv[argpos+1];
-                output_filename = argv[argpos+2];
+                catalog_filename = argv[argpos + 1];
+                output_filename = argv[argpos + 2];
             }
         }
     }
 
     int ret;
-    if (output_filename) {
+    if (output_filename)
+    {
         ret = convert_file(input_filename, catalog_filename, output_filename,
-                modules, modules_count, force);
-    } else if (input_filename) {
-        ret = dump_file(input_filename); 
-    } else {
+                           modules, modules_count, force);
+    }
+    else if (input_filename)
+    {
+        ret = dump_file(input_filename);
+    }
+    else
+    {
         print_usage(argv[0]);
         ret = 1;
     }
     free(modules);
     return ret;
 }
-
