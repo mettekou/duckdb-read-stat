@@ -461,6 +461,11 @@ void duckdb_read_stat_function(duckdb_function_info info, duckdb_data_chunk outp
     context->data_chunk = output;
     context->error_message = NULL;
 
+    if (bind_data->encoding != NULL)
+    {
+        readstat_set_file_character_encoding(parser, bind_data->encoding);
+    }
+
     if (bind_data->format != NULL)
     {
         if (!strcasecmp(bind_data->format, "sas7bdat"))
