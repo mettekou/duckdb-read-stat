@@ -1,8 +1,6 @@
 #include <string.h>
-#include <time.h>
 #if defined(_MSC_VER)
 
-#define timegm _mkgmtime
 #define strncasecmp _strnicmp
 #define strcasecmp _stricmp
 
@@ -193,20 +191,15 @@ void duckdb_read_stat_init(duckdb_init_info info)
     duckdb_init_set_init_data(info, data, duckdb_free);
 }
 
-const struct tm sas_epoch = {.tm_year = 60, .tm_mon = 0, .tm_mday = 1, .tm_isdst = 0};
-const struct tm spss_epoch = {.tm_year = -318, .tm_mon = 9, .tm_mday = 14, .tm_isdst = 0};
-const struct tm stata_epoch = {.tm_year = 60, .tm_mon = 0, .tm_mday = 1, .tm_isdst = 0};
+const int days_between_unix_epoch_and_sas_epoch = -3653;
+const int days_between_unix_epoch_and_spss_epoch = -141428;
+const int days_between_unix_epoch_and_stata_epoch = -3653;
 
-duckdb_date duckdb_read_stat_convert_date(int days, int seconds, struct tm epoch)
+duckdb_date duckdb_read_stat_convert_date(int days, int seconds, int days_between_epochs)
 {
-    struct tm datetime_struct = {.tm_year = epoch.tm_year, .tm_mon = epoch.tm_mon, .tm_mday = epoch.tm_mday + days, .tm_sec = epoch.tm_sec + seconds, .tm_isdst = 0};
-    time_t datetime = timegm(&datetime_struct);
-    struct tm *datetime_struct_epoch = gmtime(&datetime);
-    duckdb_date_struct date_struct;
-    date_struct.year = datetime_struct_epoch->tm_year + 1900;
-    date_struct.month = datetime_struct_epoch->tm_mon + 1;
-    date_struct.day = datetime_struct_epoch->tm_mday;
-    return duckdb_to_date(date_struct);
+    duckdb_date date;
+    date.days = days_between_epochs + days + (seconds / (3600 * 24));
+    return date;
 }
 
 double duckdb_read_stat_modulo(double dividend, double divisor)
@@ -234,58 +227,47 @@ duckdb_date duckdb_read_stat_to_date(double timestamp, duckdb_read_stat_file_for
     switch (file_format)
     {
     case DUCKDB_READ_STAT_FILE_FORMAT_SAS:
-        return duckdb_read_stat_convert_date(days, seconds, sas_epoch);
+        return duckdb_read_stat_convert_date(days, seconds, days_between_unix_epoch_and_sas_epoch);
     case DUCKDB_READ_STAT_FILE_FORMAT_SPSS:
-        return duckdb_read_stat_convert_date(days, seconds, spss_epoch);
+        return duckdb_read_stat_convert_date(days, seconds, days_between_unix_epoch_and_spss_epoch);
     case DUCKDB_READ_STAT_FILE_FORMAT_STATA:
-        return duckdb_read_stat_convert_date(days, seconds, stata_epoch);
+        return duckdb_read_stat_convert_date(days, seconds, days_between_unix_epoch_and_stata_epoch);
     }
 }
 
-duckdb_timestamp duckdb_read_stat_convert_timestamp(int days, int seconds, struct tm epoch)
+duckdb_timestamp duckdb_read_stat_convert_timestamp(int days, int seconds, int days_between_epochs)
 {
-    struct tm datetime_struct = {.tm_year = epoch.tm_year, .tm_mon = epoch.tm_mon, .tm_mday = epoch.tm_mday + days, .tm_sec = epoch.tm_sec + seconds, .tm_isdst = 0};
-    time_t datetime = timegm(&datetime_struct);
-    struct tm *datetime_struct_epoch = gmtime(&datetime);
-    duckdb_timestamp_struct timestamp_struct;
-
-    timestamp_struct.date.year = datetime_struct_epoch->tm_year + 1900;
-    timestamp_struct.date.month = datetime_struct_epoch->tm_mon + 1;
-    timestamp_struct.date.day = datetime_struct_epoch->tm_mday;
-    timestamp_struct.time.hour = datetime_struct_epoch->tm_hour;
-    timestamp_struct.time.min = datetime_struct_epoch->tm_min;
-    timestamp_struct.time.sec = datetime_struct_epoch->tm_sec;
-    timestamp_struct.time.micros = 0;
-
-    return duckdb_to_timestamp(timestamp_struct);
+    duckdb_timestamp timestamp;
+    timestamp.micros = ((((int64_t)days_between_epochs + (int64_t)days) * 24L * 3600L) + (int64_t)seconds) * 1000000L;
+    return timestamp;
 }
 
 duckdb_timestamp duckdb_read_stat_to_timestamp(double timestamp, duckdb_read_stat_file_format file_format)
 {
     int days = 0;
-    double msecs = 0;
+    double milliseconds = 0;
     int seconds = 0;
-    int usecs = 0;
+
     if (file_format == DUCKDB_READ_STAT_FILE_FORMAT_STATA)
     {
         days = (int)(floor(timestamp / 86400000.0));
-        msecs = duckdb_read_stat_modulo(timestamp, 86400000.0);
-        seconds = (int)(msecs / 1000.0);
-        usecs = (int)duckdb_read_stat_modulo(msecs, 1000.0);
+        milliseconds = duckdb_read_stat_modulo(timestamp, 86400000.0);
+        seconds = (int)(milliseconds / 1000.0);
     }
     else
     {
         days = (int)(floor(timestamp / 86400.0));
         seconds = (int)duckdb_read_stat_modulo(timestamp, 86400.0);
     }
+
     switch (file_format)
     {
     case DUCKDB_READ_STAT_FILE_FORMAT_SAS:
-        return duckdb_read_stat_convert_timestamp(days, seconds, sas_epoch);
+        return duckdb_read_stat_convert_timestamp(days, seconds, days_between_unix_epoch_and_sas_epoch);
     case DUCKDB_READ_STAT_FILE_FORMAT_SPSS:
-        return duckdb_read_stat_convert_timestamp(days, seconds, spss_epoch);
+        return duckdb_read_stat_convert_timestamp(days, seconds, days_between_unix_epoch_and_spss_epoch);
     case DUCKDB_READ_STAT_FILE_FORMAT_STATA:
-        return duckdb_read_stat_convert_timestamp(days, seconds, stata_epoch);
+        return duckdb_read_stat_convert_timestamp(days, seconds, days_between_unix_epoch_and_stata_epoch);
     }
 }
 
