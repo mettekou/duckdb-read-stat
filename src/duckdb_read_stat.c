@@ -144,10 +144,20 @@ void duckdb_read_stat_bind(duckdb_bind_info info)
             data->file_format = DUCKDB_READ_STAT_FILE_FORMAT_SAS;
             error = readstat_parse_sas7bdat(parser, path, data);
         }
+        if (!strcmp(format, "xpt"))
+        {
+            data->file_format = DUCKDB_READ_STAT_FILE_FORMAT_SAS;
+            error = readstat_parse_xport(parser, path, data);
+        }
         else if (!strcmp(format, "sav") || !strcmp(format, "zsav"))
         {
             data->file_format = DUCKDB_READ_STAT_FILE_FORMAT_SPSS;
             error = readstat_parse_sav(parser, path, data);
+        }
+        else if (!strcmp(format, "por"))
+        {
+            data->file_format = DUCKDB_READ_STAT_FILE_FORMAT_SPSS;
+            error = readstat_parse_por(parser, path, data);
         }
         else if (!strcmp(format, "dta"))
         {
@@ -160,10 +170,20 @@ void duckdb_read_stat_bind(duckdb_bind_info info)
         data->file_format = DUCKDB_READ_STAT_FILE_FORMAT_SAS;
         error = readstat_parse_sas7bdat(parser, path, data);
     }
+    else if (duckdb_read_stat_ends_with(path, ".xpt"))
+    {
+        data->file_format = DUCKDB_READ_STAT_FILE_FORMAT_SAS;
+        error = readstat_parse_xport(parser, path, data);
+    }
     else if (duckdb_read_stat_ends_with(path, ".sav") || duckdb_read_stat_ends_with(path, ".zsav"))
     {
         data->file_format = DUCKDB_READ_STAT_FILE_FORMAT_SPSS;
         error = readstat_parse_sav(parser, path, data);
+    }
+    else if (duckdb_read_stat_ends_with(path, ".por"))
+    {
+        data->file_format = DUCKDB_READ_STAT_FILE_FORMAT_SPSS;
+        error = readstat_parse_por(parser, path, data);
     }
     else if (duckdb_read_stat_ends_with(path, ".dta"))
     {
@@ -472,9 +492,17 @@ void duckdb_read_stat_function(duckdb_function_info info, duckdb_data_chunk outp
         {
             error = readstat_parse_sas7bdat(parser, bind_data->path, context);
         }
+        else if (!strcasecmp(bind_data->format, "xpt"))
+        {
+            error = readstat_parse_xport(parser, bind_data->path, context);
+        }
         else if (!strcasecmp(bind_data->format, "sav") || !strcasecmp(bind_data->format, "zsav"))
         {
             error = readstat_parse_sav(parser, bind_data->path, context);
+        }
+        else if (!strcasecmp(bind_data->format, "por"))
+        {
+            error = readstat_parse_por(parser, bind_data->path, context);
         }
         else if (!strcasecmp(bind_data->format, "dta"))
         {
@@ -485,9 +513,17 @@ void duckdb_read_stat_function(duckdb_function_info info, duckdb_data_chunk outp
     {
         error = readstat_parse_sas7bdat(parser, bind_data->path, context);
     }
+    else if (duckdb_read_stat_ends_with(bind_data->path, ".xpt"))
+    {
+        error = readstat_parse_xport(parser, bind_data->path, context);
+    }
     else if (duckdb_read_stat_ends_with(bind_data->path, ".sav") || duckdb_read_stat_ends_with(bind_data->path, ".zsav"))
     {
         error = readstat_parse_sav(parser, bind_data->path, context);
+    }
+    else if (duckdb_read_stat_ends_with(bind_data->path, ".por"))
+    {
+        error = readstat_parse_por(parser, bind_data->path, context);
     }
     else if (duckdb_read_stat_ends_with(bind_data->path, ".dta"))
     {
@@ -536,7 +572,7 @@ void duckdb_read_stat_register_read_stat_function(duckdb_connection connection)
 
 void duckdb_read_stat_replacement_scan(duckdb_replacement_scan_info info, const char *table_name, void *data)
 {
-    if (duckdb_read_stat_ends_with(table_name, ".sas7bdat") || duckdb_read_stat_ends_with(table_name, ".sav") || duckdb_read_stat_ends_with(table_name, ".zsav") || duckdb_read_stat_ends_with(table_name, ".dta"))
+    if (duckdb_read_stat_ends_with(table_name, ".sas7bdat") || duckdb_read_stat_ends_with(table_name, ".xpt") || duckdb_read_stat_ends_with(table_name, ".sav") || duckdb_read_stat_ends_with(table_name, ".zsav") || duckdb_read_stat_ends_with(table_name, ".por") || duckdb_read_stat_ends_with(table_name, ".dta"))
     {
         duckdb_replacement_scan_set_function_name(info, "read_stat");
         duckdb_replacement_scan_add_parameter(info, duckdb_create_varchar(table_name));

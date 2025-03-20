@@ -17,25 +17,29 @@ in a DuckDB instance near you.
 The extension adds a single DuckDB table function, `read_stat`, which you use as follows:
 
 ```SQL
--- Read a SAS `.sas7bdat` file
+-- Read a SAS `.sas7bdat` or `.xpt` file
 FROM read_stat('sas_data.sas7bdat');
--- Read an SPSS `.sav` or `.zsav` file
+FROM read_stat('sas_data.xpt');
+-- Read an SPSS `.sav`, `.zsav`, or `.por` file
 FROM read_stat('spss_data.sav');
 FROM read_stat('compressed_spss_data.zsav');
+FROM read_stat('portable_spss_data.por');
 -- Read a Stata .dta file
 FROM read_stat('stata_data.dta');
 ```
 
-If the file extension is not `.sas7bdat`, `.sav`, `.zsav`, or `.dta`,
+If the file extension is not `.sas7bdat`, `.xpt`, `.sav`, `.zsav`, `.por`, or `.dta`,
 use the `read_stat` function for the right file type with the `format` parameter:
 
 ```SQL
 FROM read_stat('sas_data.other_extension', format = 'sas7bdat');
+FROM read_stat('sas_data.other_extension', format = 'xpt');
 -- SPSS `.sav` and `.zsav` can both be read through the format `'sav'`
 FROM read_stat(
     'spss_data_possibly_compressed.other_extension',
     format = 'sav'
 );
+FROM read_stat('portable_spss_data.other_extension', format = 'por');
 FROM read_stat('stata_data.other_extension', format = 'dta');
 ```
 
@@ -48,11 +52,13 @@ FROM read_stat('latin1_encoded.sas7bdat', encoding = 'iso-8859-1');
 If your files have the proper file extensions and you do not need to override their character encodings, a [replacement scan](<https://duckdb.org/docs/stable/guides/glossary.html#replacement-scan>) is also available:
 
 ```SQL
--- Read a SAS `.sas7bdat` file
+-- Read a SAS `.sas7bdat` or `.xpt` file
 FROM 'sas_data.sas7bdat';
--- Read an SPSS `.sav` or `.zsav` file
+FROM 'sas_data.xpt';
+-- Read an SPSS `.sav`, `.zsav`, or `.por` file
 FROM 'spss_data.sav';
 FROM 'compressed_spss_data.zsav';
+FROM 'portable_spss_data.por';
 -- Read a Stata .dta file
 FROM 'stata_data.dta';
 ```

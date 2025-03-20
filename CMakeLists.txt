@@ -44,9 +44,18 @@ set(EXTENSION_SOURCES
         third_party/readstat/readstat_value.c
         third_party/readstat/readstat_variable.c
         third_party/readstat/readstat_writer.c
+        third_party/readstat/sas/ieee.c
         third_party/readstat/sas/readstat_sas.c
         third_party/readstat/sas/readstat_sas_rle.c
         third_party/readstat/sas/readstat_sas7bdat_read.c
+        third_party/readstat/sas/readstat_xport_parse_format.c
+        third_party/readstat/sas/readstat_xport_read.c
+        third_party/readstat/sas/readstat_xport_write.c
+        third_party/readstat/sas/readstat_xport.c
+        third_party/readstat/spss/readstat_por_parse.c
+        third_party/readstat/spss/readstat_por_read.c
+        third_party/readstat/spss/readstat_por_write.c
+        third_party/readstat/spss/readstat_por.c
         third_party/readstat/spss/readstat_sav_compress.c
         third_party/readstat/spss/readstat_sav_parse_timestamp.c
         third_party/readstat/spss/readstat_sav_parse.c
