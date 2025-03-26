@@ -25,6 +25,8 @@ if (DEFINED DUCKDB_EXTENSION_API_VERSION_UNSTABLE)
     add_definitions(-DDUCKDB_EXTENSION_API_VERSION_UNSTABLE=${DUCKDB_EXTENSION_API_VERSION_UNSTABLE})
 endif()
 
+add_compile_definitions(HAVE_ZLIB)
+
 ###
 # Build
 ###
@@ -33,43 +35,44 @@ project(${EXTENSION_NAME} LANGUAGES C)
 # Create Extension library
 set(EXTENSION_SOURCES
         src/duckdb_read_stat.c
-        third_party/readstat/CKHashTable.c
-        third_party/readstat/readstat_bits.c
-        third_party/readstat/readstat_convert.c
-        third_party/readstat/readstat_error.c
-        third_party/readstat/readstat_io_unistd.c
-        third_party/readstat/readstat_malloc.c
-        third_party/readstat/readstat_metadata.c
-        third_party/readstat/readstat_parser.c
-        third_party/readstat/readstat_value.c
-        third_party/readstat/readstat_variable.c
-        third_party/readstat/readstat_writer.c
-        third_party/readstat/sas/ieee.c
-        third_party/readstat/sas/readstat_sas.c
-        third_party/readstat/sas/readstat_sas_rle.c
-        third_party/readstat/sas/readstat_sas7bdat_read.c
-        third_party/readstat/sas/readstat_xport_parse_format.c
-        third_party/readstat/sas/readstat_xport_read.c
-        third_party/readstat/sas/readstat_xport_write.c
-        third_party/readstat/sas/readstat_xport.c
-        third_party/readstat/spss/readstat_por_parse.c
-        third_party/readstat/spss/readstat_por_read.c
-        third_party/readstat/spss/readstat_por_write.c
-        third_party/readstat/spss/readstat_por.c
-        third_party/readstat/spss/readstat_sav_compress.c
-        third_party/readstat/spss/readstat_sav_parse_timestamp.c
-        third_party/readstat/spss/readstat_sav_parse.c
-        third_party/readstat/spss/readstat_sav_read.c
-        third_party/readstat/spss/readstat_sav_write.c
-        third_party/readstat/spss/readstat_sav.c
-        third_party/readstat/spss/readstat_spss_parse.c
-        third_party/readstat/spss/readstat_spss.c
-        third_party/readstat/spss/readstat_zsav_compress.c
-        third_party/readstat/spss/readstat_zsav_read.c
-        third_party/readstat/spss/readstat_zsav_write.c
-        third_party/readstat/stata/readstat_dta.c
-        third_party/readstat/stata/readstat_dta_parse_timestamp.c
-        third_party/readstat/stata/readstat_dta_read.c
+        third_party/readstat/src/CKHashTable.c
+        third_party/readstat/src/readstat_bits.c
+        third_party/readstat/src/readstat_convert.c
+        third_party/readstat/src/readstat_error.c
+        third_party/readstat/src/readstat_io_unistd.c
+        third_party/readstat/src/readstat_malloc.c
+        third_party/readstat/src/readstat_metadata.c
+        third_party/readstat/src/readstat_parser.c
+        third_party/readstat/src/readstat_value.c
+        third_party/readstat/src/readstat_variable.c
+        third_party/readstat/src/readstat_writer.c
+        third_party/readstat/src/sas/ieee.c
+        third_party/readstat/src/sas/readstat_sas.c
+        third_party/readstat/src/sas/readstat_sas_rle.c
+        third_party/readstat/src/sas/readstat_sas7bdat_read.c
+        third_party/readstat/src/sas/readstat_xport_parse_format.c
+        third_party/readstat/src/sas/readstat_xport_read.c
+        third_party/readstat/src/sas/readstat_xport_write.c
+        third_party/readstat/src/sas/readstat_xport.c
+        third_party/readstat/src/spss/readstat_por_parse.c
+        third_party/readstat/src/spss/readstat_por_read.c
+        third_party/readstat/src/spss/readstat_por_write.c
+        third_party/readstat/src/spss/readstat_por.c
+        third_party/readstat/src/spss/readstat_sav_compress.c
+        third_party/readstat/src/spss/readstat_sav_parse_timestamp.c
+        third_party/readstat/src/spss/readstat_sav_parse.c
+        third_party/readstat/src/spss/readstat_sav_parse_mr_name.c
+        third_party/readstat/src/spss/readstat_sav_read.c
+        third_party/readstat/src/spss/readstat_sav_write.c
+        third_party/readstat/src/spss/readstat_sav.c
+        third_party/readstat/src/spss/readstat_spss_parse.c
+        third_party/readstat/src/spss/readstat_spss.c
+        third_party/readstat/src/spss/readstat_zsav_compress.c
+        third_party/readstat/src/spss/readstat_zsav_read.c
+        third_party/readstat/src/spss/readstat_zsav_write.c
+        third_party/readstat/src/stata/readstat_dta.c
+        third_party/readstat/src/stata/readstat_dta_parse_timestamp.c
+        third_party/readstat/src/stata/readstat_dta_read.c
 )
 
 if (DUCKDB_WASM_EXTENSION)
@@ -98,4 +101,4 @@ target_include_directories(${EXTENSION_NAME} PRIVATE src/include)
 # Include DuckDB C API headers
 target_include_directories(${EXTENSION_NAME} PRIVATE duckdb_capi)
 
-target_include_directories(${EXTENSION_NAME} PRIVATE third_party/readstat)
+target_include_directories(${EXTENSION_NAME} PRIVATE third_party/readstat/src)
