@@ -130,6 +130,7 @@ void duckdb_read_stat_bind(duckdb_bind_info info)
     data->path = path;
     data->format = NULL;
     data->encoding = NULL;
+
     readstat_set_metadata_handler(parser, &duckdb_read_stat_bind_handle_metadata);
     readstat_set_variable_handler(parser, &duckdb_read_stat_bind_handle_variable);
     readstat_set_error_handler(parser, &duckdb_read_stat_bind_handle_error);
@@ -138,6 +139,7 @@ void duckdb_read_stat_bind(duckdb_bind_info info)
     if (encoding_value != NULL)
     {
         const char *encoding = duckdb_get_varchar(encoding_value);
+        data->encoding = encoding;
         readstat_set_file_character_encoding(parser, encoding);
     }
 
